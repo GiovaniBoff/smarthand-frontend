@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import { Handpose } from './handpose';
-import WebSocketConnection from './service/webSocketConnection';
 import { Socket } from 'socket.io-client';
+import './App.css';
+import WebSocketConnection from './service/webSocketConnection';
+
 
 function App() {
-  const [webSocket, setWebSocket] = useState<WebSocket>();
+  const [webSocket, setWebSocket] = useState<Socket>();
+  const channel = 'send_message'
   useEffect(() => {
     (async function () {
       try {
-        const webSocketConnection = new WebSocketConnection();
-        const ws = await webSocketConnection.connect('');
+        const webSocketConnection = new WebSocketConnection('ws://localhost:4000', '/fingers');
+        const ws = await webSocketConnection.getConnection();
         setWebSocket(ws);
       } catch (error) {
         console.log(`Error on socket: ${error}`);
@@ -20,8 +20,10 @@ function App() {
   }, []);
 
   const handleClick = () => {
+    console.log(webSocket);
+    
     if (webSocket) {
-      webSocket.send('Hello World');
+      webSocket.emit(channel,'Hello World');
     }
   }
   return (
