@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import './App.css';
+import { Handpose } from './handpose';
 import WebSocketConnection from './service/webSocketConnection';
 
 
 function App() {
   const [webSocket, setWebSocket] = useState<Socket>();
-  const channel = 'send_message'
+  const event = 'send_message'
   useEffect(() => {
     (async function () {
       try {
@@ -20,16 +21,14 @@ function App() {
   }, []);
 
   const handleClick = () => {
-    console.log(webSocket);
-    
     if (webSocket) {
-      webSocket.emit(channel,'Hello World');
+      webSocket.emit(event,'Hello World');
     }
   }
   return (
     <div className="App">
       <header className="App-header">
-        {/* <Handpose/> */}
+        <Handpose/>
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
