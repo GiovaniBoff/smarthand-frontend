@@ -5,27 +5,16 @@ import * as fp from "fingerpose";
 import Webcam from "react-webcam";
 import { drawHand } from "../utils/HandUtilities";
 import thumbsDownGesture from "./gestures/ThumbsDownGesture";
-import WebSocketConnection from "../service/webSocketConnection";
-import { Socket } from "socket.io-client";
+import useWebSocket from "./hook/useWebSocket";
 
 export const Handpose = () => {
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
-    const [webSocket, setWebSocket] = useState();
+    const webSocket = useWebSocket();
     const [emoji,setEmoji] = useState(null)
     const emojis = { thumbs_up: "👍", victory: "✌️", thumbs_down: "👎" }
     const event = 'send_message'
    useEffect(() => {
-     (async function () {
-       try {
-         const webSocketConnection = new WebSocketConnection('ws://localhost:4000', '/fingers');
-         const ws = await webSocketConnection.getConnection();
-         setWebSocket(ws);
-         console.log(webSocket)
-       } catch (error) {
-         console.log(`Error on socket: ${error}`);
-       }
-     })();
      runHandpose();
    }, []);
 
@@ -37,11 +26,19 @@ export const Handpose = () => {
         }, 100);
       };
 
+  const canSendMessage = async () => {
+   return await webSocket.on('receive_message', (args) => {
+     return args;
+    })
+  }
    
-    const sendMessage = (msg) => {
-        if (webSocket) {
-          webSocket.emit(event,msg);
+  const sendMessage = async (msg) => {
+
+        const canSend = await canSendMessage()
+        if (webSocket && canSend ) {
+          webSocket.emit(event, msg);
         }
+        
       }
     const detect = async (net)=>{
         if (
