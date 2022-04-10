@@ -10,10 +10,16 @@ import useWebSocket from "./hook/useWebSocket";
 export const Handpose = () => {
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
-    const webSocket = useWebSocket();
     const [emoji,setEmoji] = useState(null)
-    const emojis = { thumbs_up: "👍", victory: "✌️", thumbs_down: "👎" }
-    const event = 'send_message'
+    const poseKeys = ["thumbs_up", "victory", "thumbs_down"];
+    const poseBackendMapper = {
+      [poseKeys[0]]: "likePose", [poseKeys[1]]: "victory", [poseKeys[2]]: "dislikePose"
+    };
+    const {sendMessage} = useWebSocket(poseBackendMapper);
+    const emojis = { 
+      [poseKeys[0]]: "👍", 
+      [poseKeys[1]]: "✌️", 
+      [[poseBackendMapper[2]]]: "👎" }
    useEffect(() => {
      runHandpose();
    }, []);
@@ -25,21 +31,6 @@ export const Handpose = () => {
             detect(net);
         }, 100);
       };
-
-  const canSendMessage = async () => {
-   return await webSocket.on('receive_message', (args) => {
-     return args;
-    })
-  }
-   
-  const sendMessage = async (msg) => {
-
-        const canSend = await canSendMessage()
-        if (webSocket && canSend ) {
-          webSocket.emit(event, msg);
-        }
-        
-      }
     const detect = async (net)=>{
         if (
             typeof webcamRef.current !== "undefined" &&

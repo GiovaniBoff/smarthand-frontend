@@ -1,9 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import WebSocketConnection from "../../service/webSocketConnection";
+type gestureFeedbackBody = {
+    status: string,
+    message: string,
+    isAvailable: boolean
+}
 
-const useWebSocket = () => {
+const useWebSocket = (poseBackendMapper: {}) => {
     const [webSocket, setWebSocket] = useState<Socket>();
+    const canSendRef = useRef<boolean>(true);
+
+    const GESTURE_SIGNAL = 'GESTURE_SIGNAL';
+    const listenFeedbackSocketEvent = () => {
+        const GESTURE_FEEDBACK = 'GESTURE_FEEDBACK'
+        webSocket?.on(GESTURE_FEEDBACK, (body: gestureFeedbackBody) => {
+            console.log({body});
+            canSendRef.current = body.isAvailable;
+        })
+    }
+
+    const sendMessage = (msg: keyof {}) => {
+        console.log(`Sending message ${msg}`)
+        const convertedMessage = poseBackendMapper[msg];
+        if (!canSendRef.current || !webSocket || !convertedMessage) {
+            console.error("Can't send the gesture to backend");
+            return;
+        }
+
+
+        canSendRef.current = false;
+        webSocket?.emit(GESTURE_SIGNAL, convertedMessage);
+
+    }
+
     useEffect(() => {
         (async function () {
             try {
@@ -16,7 +46,13 @@ const useWebSocket = () => {
         })();
     }, []);
 
-    return webSocket;
+    useEffect(() => {
+        if (webSocket) {
+            listenFeedbackSocketEvent();
+        }
+    }, [webSocket]);
+
+    return { sendMessage };
 }
 
 export default useWebSocket;
