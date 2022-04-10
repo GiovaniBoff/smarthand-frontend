@@ -15,7 +15,7 @@ export const Handpose = () => {
     const poseBackendMapper = {
       [poseKeys[0]]: "likePose", [poseKeys[1]]: "victory", [poseKeys[2]]: "dislikePose"
     };
-    const {sendMessage} = useWebSocket(poseBackendMapper);
+    const webSocketHook = useWebSocket(poseBackendMapper);
     const emojis = { 
       [poseKeys[0]]: "👍", 
       [poseKeys[1]]: "✌️", 
@@ -69,8 +69,10 @@ export const Handpose = () => {
                   return (p.score > c.score) ? p : c;
                 });
                 setEmoji(result.name);
-                sendMessage(result.name);
-                
+                console.log(`Is connected reference ${webSocketHook.isConnected}`);
+                // if (webSocketHook.isConnected) {
+                  webSocketHook.sendMessage(result.name);
+                // }
               }
             }      
             //Draw mesh
