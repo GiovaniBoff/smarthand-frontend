@@ -83,6 +83,11 @@ const useWebSocket = (poseBackendMapper: {}) => {
       ws.on("error", (error) => {
         console.log(`Error on socket: ${error}`);
       });
+
+      ws.on('disconnect', () => {
+          setIsConnected(false);
+          canSendRef.current = true;
+      })
       
     } catch (error) {
       console.log(`Error on socket: ${error}`);
