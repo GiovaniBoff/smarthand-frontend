@@ -4,22 +4,52 @@ import * as handpose from "@tensorflow-models/handpose";
 import * as fp from "fingerpose";
 import Webcam from "react-webcam";
 import { drawHand } from "../utils/HandUtilities";
-import thumbsDownGesture from "./gestures/ThumbsDownGesture";
 import useWebSocket from "./hook/useWebSocket";
+import gestures from "./gestures/index"
+import rockGesture from "./gestures/RockGesture";
 
 export const Handpose = () => {
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
     const [emoji,setEmoji] = useState(null)
-    const poseKeys = ["thumbs_up", "victory", "thumbs_down"];
+  
+    const poseKeys = [
+      "thumbs_up", 
+      "victory", 
+      "thumbs_down",
+      "middle_finger",
+      "rock",
+      "one",
+      "three",
+      "four",
+      "five",
+      "zero",
+      "vulkan",
+      "dusGuri",
+    ];
     const poseBackendMapper = {
-      [poseKeys[0]]: "likePose", [poseKeys[1]]: "victory", [poseKeys[2]]: "dislikePose"
+      [poseKeys[0]]: "likePose",    
+      [poseKeys[1]]: "victory", 
+      [poseKeys[2]]: "dislikePose"
+
     };
     const webSocketHook = useWebSocket(poseBackendMapper);
     const emojis = { 
       [poseKeys[0]]: "👍", 
-      [poseKeys[1]]: "✌️", 
-      [[poseBackendMapper[2]]]: "👎" }
+      [poseKeys[1]]: "✌️ 2⃣", 
+      [poseKeys[2]]: "👎",
+      [poseKeys[3]]: "🖕",
+      [poseKeys[4]]: "🤘" ,
+      [poseKeys[5]]: "1⃣" ,
+      [poseKeys[6]]: "3⃣" ,
+      [poseKeys[7]]: "4⃣" ,//TODO
+      [poseKeys[8]]: "5⃣" ,//TODO
+      [poseKeys[9]]: "0⃣" ,//TODO
+      [poseKeys[10]]: "🖖" ,//TODO
+      [poseKeys[11]]: "É US GURI E NÃO ADIANTA PAE!" //TODO
+    }
+
+
    useEffect(() => {
      runHandpose();
    }, []);
@@ -55,11 +85,7 @@ export const Handpose = () => {
             //console.log(hand);
 
             if(hand.length >0){
-              const GE = new fp.GestureEstimator([
-                fp.Gestures.VictoryGesture,
-                fp.Gestures.ThumbsUpGesture,
-                thumbsDownGesture
-              ]);
+              const GE = new fp.GestureEstimator([...gestures]);
               const gesture = await GE.estimate(hand[0].landmarks, 9);
               
 
@@ -68,11 +94,10 @@ export const Handpose = () => {
                 const result = gesture.gestures.reduce((p, c) => { 
                   return (p.score > c.score) ? p : c;
                 });
-                setEmoji(result.name);
-                console.log(`Is connected reference ${webSocketHook.isConnected}`);
-                // if (webSocketHook.isConnected) {
+                 setEmoji(result.name);
+                  //console.log(`Is connected reference ${webSocketHook.isConnected}`);
+                  console.log(result.name)
                   webSocketHook.sendMessage(result.name);
-                // }
               }
             }      
             //Draw mesh
