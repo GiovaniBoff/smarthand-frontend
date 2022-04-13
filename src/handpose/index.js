@@ -70,7 +70,6 @@ export const Handpose = () => {
                 });
                 setEmoji(result.name);
                 console.log(`Is connected reference ${webSocketHook.isConnected}`);
-               
                   webSocketHook.sendMessage(result.name);
             
               }
@@ -81,8 +80,6 @@ export const Handpose = () => {
           }
     }
     
-
-
     return<>
         <Webcam
           ref={webcamRef}
