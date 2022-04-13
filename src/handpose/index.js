@@ -5,27 +5,32 @@ import * as fp from "fingerpose";
 import Webcam from "react-webcam";
 import { drawHand } from "../utils/HandUtilities";
 import thumbsDownGesture from "./gestures/ThumbsDownGesture";
+import useWebSocket from "./hook/useWebSocket";
 
 export const Handpose = () => {
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
-
-  const [emoji,setEmoji] = useState(null)
-  const emojis = { thumbs_up: "👍", victory: "✌️", thumbs_down: "👎" }
-   useEffect(()=>{
-      runHandpose();
-    });
+    const [emoji,setEmoji] = useState(null)
+    const poseKeys = ["thumbs_up", "victory", "thumbs_down"];
+    const poseBackendMapper = {
+      [poseKeys[0]]: "likePose", [poseKeys[1]]: "victory", [poseKeys[2]]: "dislikePose"
+    };
+    const webSocketHook = useWebSocket(poseBackendMapper);
+    const emojis = { 
+      [poseKeys[0]]: "👍", 
+      [poseKeys[1]]: "✌️", 
+      [[poseBackendMapper[2]]]: "👎" }
+   useEffect(() => {
+     runHandpose();
+   }, []);
 
 
     const runHandpose = async () => {
         const net = await handpose.load();
         setInterval(() => {
             detect(net);
-        }, 10/30);
+        }, 100);
       };
-
-   
-
     const detect = async (net)=>{
         if (
             typeof webcamRef.current !== "undefined" &&
@@ -57,16 +62,16 @@ export const Handpose = () => {
               ]);
               const gesture = await GE.estimate(hand[0].landmarks, 9);
               
-              //console.log(gesture.gestures.length)
 
               if(gesture.gestures !== undefined && gesture.gestures.length > 0){
 
                 const result = gesture.gestures.reduce((p, c) => { 
                   return (p.score > c.score) ? p : c;
                 });
-                console.log(result)
                 setEmoji(result.name);
-                console.log(emoji);
+                console.log(`Is connected reference ${webSocketHook.isConnected}`);
+                  webSocketHook.sendMessage(result.name);
+            
               }
             }      
             //Draw mesh
@@ -75,8 +80,6 @@ export const Handpose = () => {
           }
     }
     
-
-
     return<>
         <Webcam
           ref={webcamRef}
@@ -108,7 +111,6 @@ export const Handpose = () => {
         />
          {emoji !== null ? (
           <div
-            
             style={{
               position: "absolute",
               marginLeft: "auto",
