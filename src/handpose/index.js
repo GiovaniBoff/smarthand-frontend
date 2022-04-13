@@ -70,9 +70,9 @@ export const Handpose = () => {
                 });
                 setEmoji(result.name);
                 console.log(`Is connected reference ${webSocketHook.isConnected}`);
-                // if (webSocketHook.isConnected) {
+               
                   webSocketHook.sendMessage(result.name);
-                // }
+            
               }
             }      
             //Draw mesh
