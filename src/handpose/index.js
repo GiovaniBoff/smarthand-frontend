@@ -6,7 +6,6 @@ import Webcam from "react-webcam";
 import { drawHand } from "../utils/HandUtilities";
 import useWebSocket from "./hook/useWebSocket";
 import gestures from "./gestures/index"
-import rockGesture from "./gestures/RockGesture";
 
 export const Handpose = () => {
     const webcamRef = useRef(null);
@@ -24,14 +23,18 @@ export const Handpose = () => {
       "four",
       "five",
       "zero",
-      "vulkan",
+      "hang_loose",
       "dusGuri",
     ];
     const poseBackendMapper = {
       [poseKeys[0]]: "likePose",    
       [poseKeys[1]]: "victory", 
-      [poseKeys[2]]: "dislikePose"
-
+      [poseKeys[2]]: "dislikePose",
+      [poseKeys[5]]: "middleFinger",
+      [poseKeys[4]]: "rock",
+      [poseKeys[7]]:[poseKeys[7]],
+      [poseKeys[8]]: [poseKeys[8]],
+      [poseKeys[10]]: "hangLoose"
     };
     const webSocketHook = useWebSocket(poseBackendMapper);
     const emojis = { 
@@ -42,11 +45,11 @@ export const Handpose = () => {
       [poseKeys[4]]: "🤘" ,
       [poseKeys[5]]: "1⃣" ,
       [poseKeys[6]]: "3⃣" ,
-      [poseKeys[7]]: "4⃣" ,//TODO
-      [poseKeys[8]]: "5⃣" ,//TODO
-      [poseKeys[9]]: "0⃣" ,//TODO
-      [poseKeys[10]]: "🖖" ,//TODO
-      [poseKeys[11]]: "É US GURI E NÃO ADIANTA PAE!" //TODO
+      [poseKeys[7]]: "4⃣" ,
+      [poseKeys[8]]: "🖐 5⃣" ,
+      // [poseKeys[9]]: "0⃣" ,//TODO
+      [poseKeys[10]]: "🤙" ,
+      [poseKeys[11]]: "É US GURI E NÃO ADIANTA PAE!"
     }
 
 
@@ -85,8 +88,8 @@ export const Handpose = () => {
             //console.log(hand);
 
             if(hand.length >0){
-              const GE = new fp.GestureEstimator([...gestures]);
-              const gesture = await GE.estimate(hand[0].landmarks, 9);
+              const GE = new fp.GestureEstimator(gestures);
+              const gesture = await GE.estimate(hand[0].landmarks, 9.5);
               
 
               if(gesture.gestures !== undefined && gesture.gestures.length > 0){
@@ -94,7 +97,7 @@ export const Handpose = () => {
                 const result = gesture.gestures.reduce((p, c) => { 
                   return (p.score > c.score) ? p : c;
                 });
-                 setEmoji(result.name);
+                  setEmoji(result.name);
                   //console.log(`Is connected reference ${webSocketHook.isConnected}`);
                   console.log(result.name)
                   webSocketHook.sendMessage(result.name);
