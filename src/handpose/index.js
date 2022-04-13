@@ -97,10 +97,10 @@ export const Handpose = () => {
                 const result = gesture.gestures.reduce((p, c) => { 
                   return (p.score > c.score) ? p : c;
                 });
-                  setEmoji(result.name);
-                  //console.log(`Is connected reference ${webSocketHook.isConnected}`);
-                  console.log(result.name)
+                setEmoji(result.name);
+                console.log(`Is connected reference ${webSocketHook.isConnected}`);
                   webSocketHook.sendMessage(result.name);
+            
               }
             }      
             //Draw mesh
@@ -109,8 +109,6 @@ export const Handpose = () => {
           }
     }
     
-
-
     return<>
         <Webcam
           ref={webcamRef}

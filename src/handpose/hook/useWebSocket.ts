@@ -68,12 +68,7 @@ const useWebSocket = (poseBackendMapper: {}) => {
   };
 
   useEffect(() => {
-    // ( async function () {
     try {
-      // const webSocketConnection = new WebSocketConnection(
-      //   "ws://localhost:4000",
-      //   "/fingers"
-      // );
       const ws = io("ws://localhost:4000/fingers");
       webSocketRef.current = ws;
       console.log(`Socket connected, ${ws.active}`);
@@ -92,7 +87,6 @@ const useWebSocket = (poseBackendMapper: {}) => {
     } catch (error) {
       console.log(`Error on socket: ${error}`);
     }
-    // })();
 
     return () => {
       if (webSocketRef.current) {
