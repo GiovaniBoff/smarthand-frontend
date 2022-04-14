@@ -4,22 +4,55 @@ import * as handpose from "@tensorflow-models/handpose";
 import * as fp from "fingerpose";
 import Webcam from "react-webcam";
 import { drawHand } from "../utils/HandUtilities";
-import thumbsDownGesture from "./gestures/ThumbsDownGesture";
 import useWebSocket from "./hook/useWebSocket";
+import gestures from "./gestures/index"
 
 export const Handpose = () => {
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
     const [emoji,setEmoji] = useState(null)
-    const poseKeys = ["thumbs_up", "victory", "thumbs_down"];
+  
+    const poseKeys = [
+      "thumbs_up", 
+      "victory", 
+      "thumbs_down",
+      "middle_finger",
+      "rock",
+      "one",
+      "three",
+      "four",
+      "five",
+      "zero",
+      "hang_loose",
+      "dusGuri",
+    ];
     const poseBackendMapper = {
-      [poseKeys[0]]: "likePose", [poseKeys[1]]: "victory", [poseKeys[2]]: "dislikePose"
+      [poseKeys[0]]: "likePose",    
+      [poseKeys[1]]: "victory", 
+      [poseKeys[2]]: "dislikePose",
+      [poseKeys[5]]: "middleFinger",
+      [poseKeys[4]]: "rock",
+      [poseKeys[7]]:[poseKeys[7]],
+      [poseKeys[8]]: [poseKeys[8]],
+      [poseKeys[10]]: "hangLoose"
     };
     const webSocketHook = useWebSocket(poseBackendMapper);
     const emojis = { 
       [poseKeys[0]]: "👍", 
-      [poseKeys[1]]: "✌️", 
-      [[poseBackendMapper[2]]]: "👎" }
+      [poseKeys[1]]: "✌️ 2⃣", 
+      [poseKeys[2]]: "👎",
+      [poseKeys[3]]: "🖕",
+      [poseKeys[4]]: "🤘" ,
+      [poseKeys[5]]: "1⃣" ,
+      [poseKeys[6]]: "3⃣" ,
+      [poseKeys[7]]: "4⃣" ,
+      [poseKeys[8]]: "🖐 5⃣" ,
+      // [poseKeys[9]]: "0⃣" ,//TODO
+      [poseKeys[10]]: "🤙" ,
+      [poseKeys[11]]: "É US GURI E NÃO ADIANTA PAE!"
+    }
+
+
    useEffect(() => {
      runHandpose();
    }, []);
@@ -55,12 +88,8 @@ export const Handpose = () => {
             //console.log(hand);
 
             if(hand.length >0){
-              const GE = new fp.GestureEstimator([
-                fp.Gestures.VictoryGesture,
-                fp.Gestures.ThumbsUpGesture,
-                thumbsDownGesture
-              ]);
-              const gesture = await GE.estimate(hand[0].landmarks, 9);
+              const GE = new fp.GestureEstimator(gestures);
+              const gesture = await GE.estimate(hand[0].landmarks, 9.5);
               
 
               if(gesture.gestures !== undefined && gesture.gestures.length > 0){
